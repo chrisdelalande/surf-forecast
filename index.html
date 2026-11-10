@@ -5,11 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#071A2C">
 <style>html,body{margin:0}</style>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src https://marine-api.open-meteo.com https://api.open-meteo.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>Surf Check Pornichet</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Polices hébergées avec le site (pas d'appel à Google Fonts). Licence SIL OFL 1.1. */
+@font-face { font-family: "Bricolage Grotesque"; font-style: normal; font-display: swap; font-weight: 200 800; src: url(fonts/bricolage-grotesque-latin-opsz-normal.woff2) format("woff2"); }
+@font-face { font-family: "Instrument Sans"; font-style: normal; font-display: swap; font-weight: 400; src: url(fonts/instrument-sans-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "Instrument Sans"; font-style: normal; font-display: swap; font-weight: 500; src: url(fonts/instrument-sans-latin-500-normal.woff2) format("woff2"); }
+@font-face { font-family: "Instrument Sans"; font-style: normal; font-display: swap; font-weight: 600; src: url(fonts/instrument-sans-latin-600-normal.woff2) format("woff2"); }
+</style>
 <style>
 /* Layout: one mobile column. Hero = sea scene driven by the forecast swell, week strip on top, verdict, slot and one-line reason; then conditions of the slot, detail on demand, replay of past sessions at the bottom. */
 :root {

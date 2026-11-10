@@ -26,5 +26,6 @@ liveLoad(D).then(ok => {
 """
 h=R(h,'<span class="badge" id="badge">Prototype</span>','<span class="badge" id="badge">Open-Meteo</span>')
 h='<!doctype html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n<meta name="theme-color" content="#071A2C">\n'+h
-h=h.replace('<title>','<style>html,body{margin:0}</style>\n<title>',1)
+CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src https://marine-api.open-meteo.com https://api.open-meteo.com; base-uri 'none'; form-action 'none'"
+h = h.replace('<title>', '<style>html,body{margin:0}</style>\n<meta http-equiv="Content-Security-Policy" content="' + CSP + '">\n<meta name="referrer" content="no-referrer">\n<title>', 1)
 open('app_live.html','w').write(h+'<script>\n'+live+'\n</script>\n</body>\n</html>\n' if '</html>' not in h else h)
