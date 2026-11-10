@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#071A2C">
+<style>html,body{margin:0}</style>
+<title>Surf Check Pornichet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one mobile column. Hero = sea scene driven by the forecast swell, week strip on top, verdict, slot and one-line reason; then conditions of the slot, detail on demand, replay of past sessions at the bottom. */
+:root {
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bg: #071A2C;
+  --surface: rgb(255 255 255 / .07);
+  --surface2: rgb(255 255 255 / .10);
+  --ink: #EAF3F6;
+  --muted: #9FB6C3;
+  --line: rgb(255 255 255 / .12);
+  --accent: #86D6E6;
+  --go: #5CD6A0; --correct: #F0B55E; --plat: #A9C3CE; --costaud: #F08A8C;
+  --hero-ink: #F3FAF8;
+  --focus: #86D6E6;
+  color-scheme: dark;
+}
+@property --sky-top { syntax: '<color>'; inherits: true; initial-value: #0B3B45; }
+@property --sky-mid { syntax: '<color>'; inherits: true; initial-value: #22645D; }
+@property --sky-bot { syntax: '<color>'; inherits: true; initial-value: #33816F; }
+@property --sea1 { syntax: '<color>'; inherits: true; initial-value: #26796F; }
+@property --sea2 { syntax: '<color>'; inherits: true; initial-value: #1B6A6C; }
+@property --sea3 { syntax: '<color>'; inherits: true; initial-value: #0F4A52; }
+@property --sun { syntax: '<color>'; inherits: true; initial-value: #FFE7A8; }
+* { box-sizing: border-box; }
+body { background: var(--bg); min-height: 100vh; color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
+button, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.wrap { max-width: 560px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.num { font-variant-numeric: tabular-nums; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* Hero : ciel et mer pilotés par le verdict, houle dessinée à l'échelle des prévisions */
+.hero { position: relative; color: var(--hero-ink); overflow: hidden; text-shadow: 0 1px 10px rgb(0 0 0 / .35);
+  --sky-top: #0B3B45; --sky-mid: #22645D; --sky-bot: #33816F; --sea1: #26796F; --sea2: #1B6A6C; --sea3: #0F4A52; --sun: #FFE7A8;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 58%, var(--sky-bot) 100%);
+  transition: --sky-top .6s ease, --sky-mid .6s ease, --sky-bot .6s ease, --sea1 .6s ease, --sea2 .6s ease, --sea3 .6s ease, --sun .6s ease; }
+.hero :focus-visible { outline-color: #fff; }
+.hero[data-v="correct"] { --sky-top: #1B3A52; --sky-mid: #5A4560; --sky-bot: #A6671F; --sea1: #4A7686; --sea2: #305A6A; --sea3: #1C3E4D; --sun: #FFC77A; }
+.hero[data-v="plat"] { --sky-top: #20404E; --sky-mid: #3D6170; --sky-bot: #527988; --sea1: #4F7689; --sea2: #456B7C; --sea3: #365A6B; --sun: #EEF5F7; }
+.hero[data-v="costaud"] { --sky-top: #141E27; --sky-mid: #463841; --sky-bot: #6A4A54; --sea1: #46525F; --sea2: #303C4A; --sea3: #1E2834; }
+.scene { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 280px; display: block; pointer-events: none; }
+.hero .wrap { position: relative; padding-block: 16px 128px; overflow: visible; display: grid; gap: 14px; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.spot { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; opacity: .9; }
+.badge { font-size: 12px; padding: 3px 10px; border: 1px solid rgb(243 250 248 / .4); border-radius: 99px; background: rgb(0 0 0 / .12); }
+.chip { display: inline-flex; align-items: center; min-height: 40px; background: rgb(243 250 248 / .1); border: 1px solid rgb(243 250 248 / .3); color: var(--hero-ink); border-radius: 99px; padding: 6px 14px; font-size: 14px; cursor: pointer; text-shadow: none; transition: background .15s, transform .1s; }
+.chip:active { transform: scale(.97); }
+.chip[hidden] { display: none; }
+.back { justify-self: start; }
+.date { font-size: 14px; opacity: .92; }
+.date[hidden] { display: none; }
+.verdict { font-family: var(--font-display); font-weight: 800; font-size: clamp(64px, 22vw, 104px); line-height: .92; letter-spacing: -.02em; margin: 0; }
+.vsub { display: inline-block; margin-top: 8px; font-size: 14px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 3px 10px; border-radius: 6px; background: rgb(243 250 248 / .18); }
+.vsub[hidden] { display: none; }
+.slot { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.slot b { font-family: var(--font-display); font-size: 28px; font-weight: 600; }
+.slot span { font-size: 13px; }
+.slot b { white-space: nowrap; }
+.slot[hidden] { display: none; }
+.reason { font-size: 18px; line-height: 1.35; max-width: 15.5em; margin: 0; text-wrap: balance; }
+.waves { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 44px; display: block; }
+
+/* Semaine : slider horizontal, grandes cartes */
+.week { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; margin-inline: -16px; padding: 2px 16px 6px; scroll-padding-inline: 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.week::-webkit-scrollbar { display: none; }
+.day { --c: #6FD3A8; --cd: #1E7A55; flex: 0 0 80px; scroll-snap-align: start; background: rgb(255 255 255 / .12); border: 1px solid rgb(255 255 255 / .24); color: var(--hero-ink); border-radius: 20px; padding: 11px 6px 11px; text-align: center; cursor: pointer; display: grid; gap: 4px; justify-items: center; align-content: start; min-height: 134px; text-shadow: none; transition: background .15s, transform .1s; }
+.day[data-v="correct"] { --c: #F0B55E; --cd: #9A5E10; } .day[data-v="plat"] { --c: #C3D6DE; --cd: #4D6A78; } .day[data-v="costaud"] { --c: #F59B9D; --cd: #B03E42; }
+.day:hover { background: rgb(255 255 255 / .20); }
+.day:active { transform: scale(.96); }
+.day.we { background: rgb(255 255 255 / .18); }
+.day[aria-pressed="true"] { background: var(--hero-ink); color: #0D2A2E; border-color: var(--hero-ink); }
+.day .wd { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; }
+.day .dn { font-weight: 600; font-size: 18px; line-height: 1; }
+.day .ico { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: rgb(255 255 255 / .16); margin: 3px 0 1px; }
+.day .ico svg { width: 21px; height: 21px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.day[aria-pressed="true"] .ico { background: color-mix(in srgb, var(--cd) 14%, transparent); }
+.day[aria-pressed="true"] .ico svg { stroke: var(--cd); }
+.day .hgt { font-family: var(--font-display); font-weight: 600; font-size: 17px; line-height: 1; color: var(--c); }
+.day[aria-pressed="true"] .hgt { color: var(--cd); }
+.day .vl { font-size: 12px; font-weight: 600; line-height: 1.1; }
+.day.trend { border-style: dashed; }
+
+/* Sections */
+main .wrap { display: grid; gap: 20px; padding-block: 16px 36px; }
+h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0 0 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.session { padding: 14px 16px; display: grid; gap: 6px; }
+.session .k { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.cmp { display: flex; gap: 8px 16px; flex-wrap: wrap; align-items: center; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; }
+.dot { width: 11px; height: 11px; border-radius: 50%; background: var(--c, var(--muted)); flex: none; }
+[data-v="go"] { --c: var(--go); } [data-v="correct"] { --c: var(--correct); } [data-v="plat"] { --c: var(--plat); } [data-v="costaud"] { --c: var(--costaud); }
+.hero .dot { --c: #6FD3A8; }
+.hero [data-v="correct"] .dot { --c: #F0B55E; } .hero [data-v="plat"] .dot { --c: #B5CBD4; } .hero [data-v="costaud"] .dot { --c: #F08A8C; } .hero [data-v="go"] .dot { --c: #6FD3A8; }
+.lines { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px; display: grid; gap: 3px; align-content: start; min-width: 0; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.tile.wide { grid-column: 1 / -1; }
+.tile .l { display: flex; align-items: center; gap: 7px; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.tile .l svg { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tile .big { font-family: var(--font-display); font-weight: 600; font-size: 22px; line-height: 1.1; margin-top: 8px; }
+.tile .big.n { font-size: 34px; letter-spacing: -.01em; }
+.tile .big .u { font-size: 15px; font-weight: 500; color: var(--muted); margin-left: 3px; letter-spacing: 0; }
+.tile .pre { display: block; font-family: var(--font-body); font-size: 12px; font-weight: 400; color: var(--muted); margin-bottom: 2px; }
+.tile .word { font-weight: 600; font-size: 14px; color: var(--accent); }
+.tile small { color: var(--muted); font-size: 12.5px; line-height: 1.35; margin-top: 2px; }
+.tile select { background: var(--surface2); border: 1px solid var(--line); border-radius: 10px; padding: 2px 6px; font: inherit; color: var(--ink); }
+option { color: #0D2A2E; }
+.sechead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.sechead h2 { margin: 0; }
+.sechead .when { font-family: var(--font-display); font-weight: 600; font-size: 16px; color: var(--accent); }
+
+/* Detail */
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+summary { padding: 14px 16px; min-height: 48px; cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+.inner { padding: 0 16px 16px; display: grid; gap: 14px; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+.tablewrap:focus-visible { outline-offset: 0; }
+table { border-collapse: collapse; width: 100%; min-width: 440px; font-size: 13.5px; }
+th, td { padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--surface2); }
+tr:last-child td { border-bottom: 0; }
+tr.best td { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.tag { font-size: 11px; font-weight: 600; margin-left: 6px; padding: 1px 6px; border-radius: 5px; background: var(--accent); color: #06202B; }
+.hcard { padding: 14px 14px 12px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; min-width: 0; }
+.hcard h2 { margin: 0 2px; }
+.readout { display: grid; gap: 2px; padding: 2px; min-height: 52px; }
+.readout .r1 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-family: var(--font-display); font-weight: 600; font-size: 20px; }
+.readout .r1 .pill { font-family: var(--font-body); font-size: 14px; }
+.readout .r2 { font-size: 13.5px; color: var(--muted); }
+.hscroll { min-width: 0; }
+.hin { position: relative; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: ew-resize; }
+.curve { display: block; width: 100%; height: auto; overflow: visible; }
+.curve .band { fill: var(--go); opacity: .13; }
+.curve .big { stroke: var(--costaud); stroke-width: 1; stroke-dasharray: 3 4; opacity: .7; }
+.curve .line { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.curve .guide { stroke: var(--ink); stroke-width: 1; opacity: .35; }
+.curve .pt { stroke: var(--bg); stroke-width: 2; }
+.curve .ring { fill: none; stroke: var(--ink); stroke-width: 2; }
+.curve .mine { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 3 3; }
+.hcols { display: flex; }
+.hcols button { flex: 1 1 0; min-width: 0; min-height: 52px; display: grid; justify-items: center; align-content: center; gap: 3px; background: none; border: 0; border-radius: 10px; color: var(--muted); font-size: 12px; cursor: pointer; padding: 4px 0; }
+.hcols button[aria-pressed="true"] { background: rgb(255 255 255 / .12); color: var(--ink); font-weight: 600; }
+.hcols .w { display: inline-flex; align-items: center; gap: 2px; font-size: 11px; }
+.hcols .w svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.hnote { margin: 0; font-size: 12.5px; color: var(--muted); }
+.gloss { display: grid; gap: 6px; font-size: 14px; }
+.gloss b { font-weight: 600; }
+.replaybox { padding: 14px 16px; display: grid; gap: 10px; }
+.replaybox p { margin: 0; font-size: 13.5px; color: var(--muted); }
+.rchips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip.light { background: var(--surface2); border-color: var(--line); color: var(--ink); }
+.chip.light[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #06202B; font-weight: 600; }
+.limits { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+.limits p { margin: 0; max-width: 62ch; }
+.safety b { font-weight: 600; }
+.safety { font-size: 13.5px; padding: 12px 14px; border-radius: 10px; background: var(--surface2); border: 1px solid var(--line); }
+.hero .swap { will-change: opacity, transform; }
+@media (prefers-reduced-motion: reduce) {
+  .hero, .day, .chip { transition: none; }
+  .scene * { animation: none !important; }
+}
+.scene .bob { animation: bob var(--d, 6s) ease-in-out infinite alternate; }
+@keyframes bob { from { transform: translateY(calc(var(--a, 2) * -1px)); } to { transform: translateY(calc(var(--a, 2) * 1px)); } }
+</style>
+
+<header class="hero" id="hero" data-v="go">
+  <svg class="scene" id="scene" viewBox="0 0 400 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <div class="top">
+      <span class="spot">Pornichet</span>
+      <span class="badge" id="badge">Open-Meteo</span>
+    </div>
+    <button class="chip back" id="backBtn" type="button" hidden>← Cette semaine</button>
+    <div class="week" id="week" role="group" aria-label="Prévision de la semaine"></div>
+    <div class="swap" id="swap1">
+      <div class="date" id="date"></div>
+      <h1 class="verdict" id="h1" tabindex="-1"><span class="sr" id="srdate">Verdict : </span><span id="verdict"></span></h1>
+      <span class="vsub" id="vsub" hidden></span>
+    </div>
+    <div class="slot swap" id="slot"></div>
+    <p class="reason swap" id="reason"></p>
+    <p class="sr" id="live" role="status" aria-live="polite"></p>
+  </div>
+  <svg class="waves" viewBox="0 0 1200 44" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 22 C180 6 330 6 520 22 S840 40 1010 20 S1150 10 1200 18 V44 H0Z" fill="var(--bg)"/>
+  </svg>
+</header>
+
+<main>
+  <div class="wrap">
+    <section id="sessionBox" hidden></section>
+
+    <section aria-labelledby="h-now">
+      <div class="sechead"><h2 id="h-now">Conditions du créneau</h2><span class="when num" id="when"></span></div>
+      <div class="lines" id="lines"></div>
+    </section>
+
+    <section class="card hcard" aria-labelledby="h-hours">
+      <h2 id="h-hours">Heure par heure</h2>
+      <div id="hoursBody"></div>
+    </section>
+
+    <section class="card replaybox" aria-labelledby="h-replay" hidden>
+      <h2 id="h-replay" style="margin:0">Rejouer une session passée</h2>
+      <p>Choisis une session : le verdict est recalculé avec les données de l'époque, puis comparé à ton ressenti.</p>
+      <div class="rchips" id="rchips"></div>
+    </section>
+
+    <details>
+      <summary>Comprendre les termes</summary>
+      <div class="inner gloss">
+        <div><b>Hauteur des vagues</b> : la taille de la houle, avant qu'elle ne casse sur la plage. Jusqu'à 1 m, c'est confortable pour un débutant.</div>
+        <div><b>Espacement des vagues</b> : le temps entre deux vagues. Au-dessus de 8 secondes, elles sont bien formées. Exemple : à 10 s, tu as le temps de te replacer entre deux séries. À 6 s, elles s'enchaînent et la mer est désordonnée.</div>
+        <div><b>Orientation de la houle</b> : la direction d'où elle arrive. La plage de Pornichet fait face à l'ouest-sud-ouest. Exemple : une houle de nord arrive de côté, la plage la reçoit mal et il y a peu de vagues.</div>
+        <div><b>Vent de terre ou de mer</b> : un vent qui vient de la terre lisse la surface. Un vent qui vient de la mer la hache. Exemple : 10 km/h de terre, c'est idéal. 30 km/h de mer, la surface est hachée.</div>
+        <div><b>Rafales</b> : les pointes de vent, plus fortes que le vent moyen. Exemple : un vent de 20 km/h avec des rafales à 40 km/h se ressent comme un vent fort.</div>
+        <div><b>Marée</b> : le niveau de l'eau. Exemple : à marée haute descendante, l'eau se retire et les vagues peuvent changer de forme. Pornichet marche mieux en marée basse à mi-montante, mais ce critère pèse peu dans le verdict.</div>
+        <div><b>Tenue</b> : la combinaison conseillée selon l'eau. Exemple : à 13°, une 4/3 avec chaussons. Sous 11°, il faut une 5/4 avec gants et cagoule.</div>
+        <div><b>Jours en pointillés</b> : tendance. Plus un jour est loin, moins la prévision est sûre. Les week-ends ont un fond plus clair. Fais glisser la bande des jours pour voir la fin de la semaine.</div>
+      </div>
+    </details>
+
+    <div class="safety"><b>Sécurité.</b> Le verdict ne couvre que l'état de la mer. Il ne remplace ni les drapeaux ni les sauveteurs, et il ne prévoit pas les courants.</div>
+
+    <details>
+      <summary>Sources et limites</summary>
+      <div class="inner limits">
+      <p>Houle, vent et marée : Open-Meteo (modèle marin, point de grille à environ 6 km au large du spot), licence CC BY 4.0. Ciel, pluie, température de l'air et de l'eau : Open-Meteo. Données de prévision : © Open-Meteo.com.</p>
+      <p>Détail heure par heure : jusqu'à J+3. Au-delà, le verdict s'appuie sur le maximum de la journée (tendance, en pointillés) et le créneau apparaît quand le jour se rapproche.</p>
+      <p>Heures de Paris. Seuils de la version 1 prudents et génériques, à recaler avec l'expérience. La règle tempête (vent moyen au-delà de 35 km/h ou rafales au-delà de 60 km/h) est une proposition de sécurité, pas encore validée.</p>
+      </div>
+    </details>
+  </div>
+</main>
+
+<script>
+const D = {"asof":"2000-01-01T00:00","sstWeek":13,"hourly":{},"daily":{},"sessions":[]};
+/* Chargement live : Open-Meteo (marine + prévisions), heure de Paris. Appelé avant le rendu. */
+const SHORT_MONTHS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+const LIVE_URLS = () => {
+  const q = 'latitude=47.26&longitude=-2.34&timezone=Europe%2FParis&forecast_days=8';
+  return {
+    marine: `https://marine-api.open-meteo.com/v1/marine?${q}&hourly=swell_wave_height,swell_wave_period,swell_wave_direction,sea_level_height_msl,sea_surface_temperature&daily=swell_wave_height_max,swell_wave_period_max,swell_wave_direction_dominant`,
+    fc: `https://api.open-meteo.com/v1/forecast?${q}&wind_speed_unit=kmh&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m,precipitation,cloud_cover&daily=wind_speed_10m_max,wind_gusts_10m_max,precipitation_sum,temperature_2m_max`
+  };
+};
+function parisNow() {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date()).map(x => [x.type, x.value]));
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}`;
+}
+async function getJSON(url) {
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 12000);
+  try { const r = await fetch(url, { signal: ctl.signal }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); }
+  finally { clearTimeout(t); }
+}
+function mergeLive(D, marine, fc, asof) {
+  const mh = marine.hourly, fh = fc.hourly, md = marine.daily, fd = fc.daily;
+  if (!mh || !fh || !md || !fd || !mh.time || mh.time.length < 24) throw new Error('format');
+  for (const k of Object.keys(D.hourly)) if (k >= '2026-11-01') delete D.hourly[k];
+  for (const k of Object.keys(D.daily)) if (k >= '2026-11-01') delete D.daily[k];
+  const days = [...new Set(mh.time.map(t => t.slice(0, 10)))];
+  const num = (a, i) => (a && a[i] != null ? a[i] : null);
+  days.forEach((iso, k) => {
+    const idx = mh.time.map((t, i) => t.startsWith(iso) ? i : -1).filter(i => i >= 0);
+    const di = md.time.indexOf(iso);
+    let dl = { sh: num(md.swell_wave_height_max, di), sp: num(md.swell_wave_period_max, di), wd: num(md.swell_wave_direction_dominant, di), wm: num(fd.wind_speed_10m_max, di), gm: num(fd.wind_gusts_10m_max, di), pr: num(fd.precipitation_sum, di), tx: num(fd.temperature_2m_max, di) };
+    if (k <= 4 && idx.length === 24) {
+      const pick = (src, key, fill = 0) => idx.map(i => { const v = src[key] ? src[key][i] : null; return v == null ? fill : v; });
+      const h = { sh: pick(mh, 'swell_wave_height'), sp: pick(mh, 'swell_wave_period', 10), sd: pick(mh, 'swell_wave_direction', 258), t: pick(mh, 'sea_level_height_msl'), sst: pick(mh, 'sea_surface_temperature', 13), w: pick(fh, 'wind_speed_10m'), wd: pick(fh, 'wind_direction_10m'), g: pick(fh, 'wind_gusts_10m'), tmp: pick(fh, 'temperature_2m'), pr: pick(fh, 'precipitation'), cl: pick(fh, 'cloud_cover') };
+      const okSwell = idx.every(i => mh.swell_wave_height && mh.swell_wave_height[i] != null);
+      if (okSwell) {
+        D.hourly[iso] = h;
+        const im = h.sh.indexOf(Math.max(...h.sh));
+        dl = { sh: Math.max(...h.sh), sp: h.sp[im], wd: h.sd[im], wm: Math.max(...h.w), gm: Math.max(...h.g), pr: Math.round(h.pr.reduce((a, b) => a + b, 0) * 10) / 10, tx: Math.max(...h.tmp) };
+      }
+    }
+    if (dl.sh != null) D.daily[iso] = Object.fromEntries(Object.entries(dl).map(([a, b]) => [a, b == null ? 0 : b]));
+  });
+  const sst = (mh.sea_surface_temperature || []).filter(v => v != null);
+  D.sstWeek = sst.length ? Math.round(sst.reduce((a, b) => a + b, 0) / sst.length * 10) / 10 : 13;
+  D.asof = asof; D.firstDay = days[0];
+}
+async function liveLoad(D) {
+  const KEY = 'surf-pornichet-cache';
+  const u = LIVE_URLS();
+  try {
+    const [marine, fc] = await Promise.all([getJSON(u.marine), getJSON(u.fc)]);
+    const asof = parisNow();
+    mergeLive(D, marine, fc, asof);
+    try { localStorage.setItem(KEY, JSON.stringify({ marine, fc, asof })); } catch (_) {}
+    D.fetchedAt = Date.now();
+    return true;
+  } catch (err) {
+    try {
+      const c = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (c && c.asof && Date.now() - new Date(c.asof + ':00').getTime() < 24 * 3600 * 1000) { mergeLive(D, c.marine, c.fc, c.asof); D.stale = true; D.fetchedAt = Date.now(); return true; }
+    } catch (_) {}
+    return false;
+  }
+}
+
+const __reason = document.getElementById('reason'); if (__reason) __reason.textContent = 'Chargement des prévisions…';
+function __main() {
+document.documentElement.lang = 'fr';
+const REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const NB = '\u00A0';
+const SPOT = { lat: 47.26, lon: -2.34, swellIdeal: 258, offshore: 55 };
+const MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const DAYS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+const DAYS3 = ['dim','lun','mar','mer','jeu','ven','sam'];
+const LABEL = { go: 'Go', correct: 'Correct', plat: 'Oublie\u00A0!', costaud: 'Oublie\u00A0!' };
+const SUB = { plat: 'Trop plat', costaud: 'Trop costaud' };
+const SHORT = { go: 'Go', correct: 'Correct', plat: 'Trop plat', costaud: 'Trop costaud' };
+const CELL = { go: 'Go', correct: 'Correct', plat: 'Oublie', costaud: 'Oublie' };
+const _unusedStar = '<svg class="star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3 7 7.5.6-5.7 4.9 1.8 7.4L12 17.8 5.4 21.9l1.8-7.4L1.5 9.6 9 9z"/></svg>';
+const RANK = { go: 3, correct: 2, plat: 1, costaud: 0 };
+const fr = (n, d = 1) => Number(n).toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const angdiff = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+const el = id => document.getElementById(id);
+const ASOF_DATE = D.asof.slice(0, 10);
+const ASOF_H = +D.asof.slice(11, 13) + +D.asof.slice(14, 16) / 60;
+const addDays = (iso, k) => { const [y, m, d] = iso.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d + k)).toISOString().slice(0, 10); };
+const longDate = d => `${DAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+const cap = s => s[0].toUpperCase() + s.slice(1);
+const fx = s => String(s).replace(/ ([:;?!])/g, '\u00A0$1').replace(/ (km\/h|m|s)\b/g, '\u00A0$1');
+
+/* Règles de verdict : voir doc 06. La règle « tempête » est une proposition de sécurité. */
+function classify(h, p, dir, wind, gust) {
+  if (wind > 35 || (gust || 0) > 60) return { c: 'costaud', r: ['storm'] };
+  if (h < 0.3) return { c: 'plat', r: ['flat'] };
+  if (h > 1.5) return { c: 'costaud', r: ['big'] };
+  let c = (h >= 0.5 && h <= 1.0) ? 'go' : 'correct';
+  const r = [];
+  if (h < 0.5) r.push('small');
+  if (h > 1.0) r.push('large');
+  if (wind > 25) { c = 'correct'; r.push('wind'); }
+  if (p < 8) { c = 'correct'; r.push('period'); }
+  if (angdiff(dir, SPOT.swellIdeal) > 30) { c = 'correct'; r.push('dir'); }
+  return { c, r };
+}
+const PRIORITY = ['storm', 'big', 'flat', 'large', 'wind', 'period', 'dir', 'small'];
+const REASON = {
+  storm: 'Tempête : vent très fort, on reste au sec.',
+  flat: 'Presque pas de vagues : le déplacement ne vaut pas le coup.',
+  big: 'Vagues trop grosses pour ton niveau : on reste sur le sable.',
+  large: 'Vagues costaudes pour ton niveau : prudence, reste près du bord.',
+  wind: 'Vent fort : la surface sera hachée.',
+  period: 'Vagues trop rapprochées : la mer sera désordonnée.',
+  dir: 'Houle mal orientée pour la plage : peu de vagues arriveront.',
+  small: 'Vagues toutes petites : tu en prendras quelques-unes, sans plus.'
+};
+function reasonText(c, r, wind) {
+  if (c === 'go') return wind > 15 ? 'Vagues propres et bien orientées, vent modéré : de bonnes conditions pour ton niveau.' : 'Vagues propres et bien orientées, vent faible : de bonnes conditions pour ton niveau.';
+  const k = PRIORITY.find(x => r.includes(x));
+  return REASON[k] || '';
+}
+
+/* Heure de Paris : +2 h entre le dernier dimanche de mars et celui d'octobre, sinon +1 h */
+function parisOffset(date) {
+  const y = date.getUTCFullYear();
+  const lastSun = m => { const d = new Date(Date.UTC(y, m + 1, 0)); d.setUTCDate(d.getUTCDate() - d.getUTCDay()); return d.getTime() + 3600000; };
+  return (date.getTime() >= lastSun(2) && date.getTime() < lastSun(9)) ? 2 : 1;
+}
+/* Soleil : formule NOAA simplifiée */
+function sunTimes(date) {
+  const rad = Math.PI / 180;
+  const N = Math.floor((date.getTime() - Date.UTC(date.getUTCFullYear(), 0, 0)) / 86400000);
+  const g = 2 * Math.PI / 365 * (N - 1);
+  const eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+  const dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+  const ha = Math.acos(Math.cos(90.833 * rad) / (Math.cos(SPOT.lat * rad) * Math.cos(dec)) - Math.tan(SPOT.lat * rad) * Math.tan(dec)) / rad;
+  const tz = parisOffset(date);
+  return { rise: (720 - 4 * (SPOT.lon + ha) - eq) / 60 + tz, set: (720 - 4 * (SPOT.lon - ha) - eq) / 60 + tz };
+}
+const hhmm = x => { const h = Math.floor(x), m = Math.round((x - h) * 60); return `${h}h${String(m).padStart(2, '0')}`; };
+
+let state = { mode: 'week', session: 2, sel: ASOF_DATE, water: 15 };
+/* Règle produit : quand le dernier créneau possible d'aujourd'hui est passé, le jour J disparaît de la semaine (on repart de demain). */
+let START = ASOF_DATE;
+
+function buildDay(iso) {
+  const date = new Date(iso + 'T12:00:00Z'), hr = (state.mode !== 'week' || iso <= addDays(START, 3)) ? D.hourly[iso] : undefined, dl = D.daily[iso];
+  const o = { iso, date, weekend: [0, 6].includes(date.getUTCDay()), sun: sunTimes(date), dl };
+  if (hr) {
+    const min = Math.min(...hr.t), max = Math.max(...hr.t);
+    const first = Math.max(7, Math.ceil(o.sun.rise - 0.25));
+    const slots = [];
+    for (let h = first; h <= 19 && h + 1 <= o.sun.set; h++) {
+      if (iso === ASOF_DATE && state.mode === 'week' && h < ASOF_H) continue;
+      const cl = classify(hr.sh[h], hr.sp[h], hr.sd[h], hr.w[h], hr.g[h]);
+      const lvl = (hr.t[h] - min) / (max - min);
+      const slope = h < 23 ? hr.t[h + 1] - hr.t[h] : 0;
+      const bonus = (lvl < 0.66 && slope > 0) ? 1.5 : (lvl < 0.35 ? 1 : 0);
+      const score = RANK[cl.c] * 100 - Math.abs(hr.sh[h] - 0.8) * 10 - hr.w[h] * 0.15 + bonus;
+      slots.push({ h, c: cl.c, r: cl.r, score, lvl, slope });
+    }
+    if (slots.length) {
+      o.slots = slots; o.hr = hr;
+      o.best = slots.reduce((a, b) => b.score > a.score ? b : a);
+      o.c = o.best.c; o.r = o.best.r;
+      return o;
+    }
+    o.over = true;
+  }
+  const cl = classify(dl.sh, dl.sp, dl.wd, dl.wm, dl.gm);
+  o.c = cl.c; o.r = cl.r;
+  return o;
+}
+
+const ICON = {
+  'Vagues': '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-3 5-3 2.5 3 5 3"/><path d="M2 15c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-3 5-3 2.5 3 5 3"/><path d="M2 21c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-3 5-3 2.5 3 5 3"/></svg>',
+  'Vent': '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h10a3 3 0 1 0-3-3"/><path d="M3 12h15a3 3 0 1 1-3 3"/><path d="M3 16h7"/></svg>',
+  'Marée': '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v14"/><path d="M3 14l4 4 4-4"/><path d="M17 20V6"/><path d="M13 10l4-4 4 4"/></svg>',
+  'Météo': '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 19a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17.5 10 3.5 3.5 0 0 1 17 19z"/></svg>',
+  'Eau et tenue': '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0z"/><path d="M12 9v8"/></svg>'
+};
+function sizeWord(h) { return h < 0.3 ? 'presque plates' : h < 0.5 ? 'toutes petites' : h <= 1.0 ? 'petites, faciles' : h <= 1.5 ? 'costaudes pour un débutant' : 'grosses'; }
+function periodWord(p) { return p >= 9 ? 'bien formées, bien espacées' : p >= 8 ? 'correctement espacées' : 'rapprochées, désordonnées'; }
+function windWord(v) { return v < 5 ? 'quasi nul' : v <= 15 ? 'faible' : v <= 25 ? 'modéré' : v <= 35 ? 'fort' : 'très fort'; }
+function windDirWord(deg, v) { if (v < 5) return ''; const d = angdiff(deg, SPOT.offshore); return d <= 45 ? 'vient de la terre : surface lisse' : d <= 110 ? 'vient de côté' : 'vient de la mer : surface hachée'; }
+function tideWord(s) { const lv = s.lvl < 0.33 ? 'basse' : s.lvl < 0.66 ? 'mi-marée' : 'haute'; return `${lv}, ${s.slope >= 0 ? 'montante' : 'descendante'}`; }
+const skyWord = c => c < 25 ? 'Ciel dégagé' : c < 60 ? 'Éclaircies' : c < 90 ? 'Ciel nuageux' : 'Couvert';
+const rainWord = mm => mm < 0.2 ? 'sec' : mm < 1 ? 'quelques gouttes' : mm < 5 ? 'pluie faible' : 'pluie';
+
+const SUITS = ['2 mm', '3/2', '4/3', '5/4', '6/5'];
+function gear(water, windy) {
+  let lo, hi, acc = [];
+  if (water >= 20) { lo = 0; hi = 1; }
+  else if (water >= 17) { lo = 1; hi = 1; }
+  else if (water >= 14) { lo = 2; hi = 2; if (water >= 15) acc.push('chaussons'); }
+  else if (water >= 11) { lo = 2; hi = 3; acc.push('chaussons'); if (water <= 12) acc.push('cagoule'); }
+  else { lo = 3; hi = 4; acc.push('chaussons', 'gants', 'cagoule'); }
+  if (windy) { lo = Math.min(4, lo + 1); hi = Math.min(4, hi + 1); }
+  const mine = 2;
+  const rec = lo === hi ? SUITS[lo] : `${SUITS[lo]} à ${SUITS[hi]}`;
+  const cmp = mine >= lo && mine <= hi ? 'adaptée' : mine < lo ? 'un peu juste' : 'plus épaisse que nécessaire';
+  return { rec, acc, cmp };
+}
+
+function weekStart() { return state.mode === 'week' ? START : D.sessions[state.session].date; }
+function relLabel(iso) { return state.mode !== 'week' ? '' : iso === ASOF_DATE ? "Aujourd'hui · " : iso === addDays(ASOF_DATE, 1) ? 'Demain · ' : ''; }
+
+function render(ropt = {}) {
+  const ae = document.activeElement;
+  const focusWeek = el('week').contains(ae), focusWater = ae && ae.id === 'water';
+  const o = buildDay(state.sel);
+  const hero = el('hero');
+  hero.dataset.v = o.c;
+  const rel = relLabel(state.sel).replace(' · ', '');
+  const dEl = el('date');
+  if (state.mode === 'week') { dEl.textContent = rel; dEl.hidden = !rel; } else { dEl.textContent = cap(longDate(o.date)); dEl.hidden = false; }
+  el('srdate').textContent = `Verdict pour ${longDate(o.date)} : `;
+  el('badge').textContent = state.mode === 'week' ? `${D.stale ? 'Hors ligne' : 'Open-Meteo'} · ${D.asof.slice(8, 10).replace(/^0/, '')} ${SHORT_MONTHS[+D.asof.slice(5, 7) - 1]} ${D.asof.slice(11, 13)}h${D.asof.slice(14, 16)}` : 'Rejeu · données réelles';
+  el('verdict').textContent = LABEL[o.c];
+  const sub = el('vsub'); sub.hidden = !SUB[o.c]; sub.textContent = SUB[o.c] || '';
+
+  const slotEl = el('slot');
+  let wind = 0, refH = null, whenTxt = 'maximum du jour', sceneSize, scenePeriod;
+  slotEl.hidden = false;
+  const todayLeft = state.mode === 'week' && state.sel === ASOF_DATE;
+  if (o.best) {
+    const s = o.best.h, e = Math.min(s + 2, Math.floor(o.sun.set), 20);
+    slotEl.innerHTML = `<span>${todayLeft ? 'Meilleur créneau restant' : 'Meilleur créneau'}</span><b class="num">${s}h${NB}–${NB}${e}h</b>`;
+    wind = o.hr.w[s]; refH = s; whenTxt = `${s}h – ${e}h`; sceneSize = o.hr.sh[s]; scenePeriod = o.hr.sp[s];
+  } else {
+    slotEl.innerHTML = o.over ? '<span>Journée terminée.</span><button class="chip" id="nextBtn" type="button">Voir demain →</button>' : '';
+    slotEl.hidden = !o.over;
+    wind = o.dl.wm; sceneSize = o.dl.sh; scenePeriod = o.dl.sp;
+  }
+  if (o.best && (o.c === 'costaud' || o.c === 'plat')) slotEl.hidden = true;
+  el('reason').textContent = fx(reasonText(o.c, o.r, wind));
+  const nb = el('nextBtn'); if (nb) nb.onclick = () => { state.sel = addDays(ASOF_DATE, 1); render(); };
+  el('live').textContent = `${longDate(o.date)} : ${SHORT[o.c]}${o.best ? `, créneau ${o.best.h}h à ${Math.min(o.best.h + 2, Math.floor(o.sun.set), 20)}h` : ''}. ${el('reason').textContent}`;
+  if (!REDUCED && ropt.animate !== false) ['swap1', 'slot', 'reason'].forEach((id, i) => el(id).animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: i * 40, easing: 'ease-out', fill: 'backwards' }));
+  el('when').textContent = whenTxt;
+  drawScene(o.c, sceneSize, scenePeriod);
+
+  /* retour + rejeux */
+  el('backBtn').hidden = state.mode !== 'sess';
+  el('backBtn').onclick = () => { state.mode = 'week'; pickDefault(); render(); el('h1').focus({ preventScroll: true }); };
+  const rp = el('rchips'); rp.innerHTML = '';
+  D.sessions.forEach((s, i) => {
+    const d = new Date(s.date + 'T12:00:00Z');
+    const b = document.createElement('button');
+    b.className = 'chip light'; b.type = 'button';
+    b.setAttribute('aria-pressed', String(state.mode === 'sess' && state.session === i));
+    b.textContent = `${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')} · ${s.feel.replace(/[«»]/g, '').trim()}`;
+    b.onclick = () => { state.mode = 'sess'; state.session = i; state.sel = s.date; render(); window.scrollTo({ top: 0, behavior: REDUCED ? 'auto' : 'smooth' }); el('h1').focus({ preventScroll: true }); };
+    rp.appendChild(b);
+  });
+
+  /* encart session */
+  const sb = el('sessionBox');
+  const sessOfDay = state.mode === 'sess' ? D.sessions.find(s => s.date === state.sel) : null;
+  if (sessOfDay && o.slots) {
+    const sl = o.slots.find(x => x.h === sessOfDay.hour), hr = o.hr, h = sessOfDay.hour;
+    sb.hidden = false;
+    sb.innerHTML = `<div class="card session">
+      <div class="k">Ta session · ${sessOfDay.start} · ${sessOfDay.min} min dans l'eau</div>
+      <div class="cmp"><span class="pill" data-v="${sl.c}"><i class="dot"></i>Modèle à ${h}h : ${SHORT[sl.c]}</span><span>Ton ressenti : ${sessOfDay.feel}</span></div>
+      <div style="color:var(--muted);font-size:13px">Vagues ${fr(hr.sh[h], 2)} m, ${fr(hr.sp[h])} s, vent ${fr(hr.w[h], 0)} km/h. Test de cohérence, pas une validation : les seuils ont été posés après avoir vu ces données.</div>
+    </div>`;
+  } else { sb.hidden = true; sb.innerHTML = ''; }
+
+  /* niveau 2 */
+  const L = [];
+  const isNov = state.mode === 'week';
+  if (o.best) {
+    const hr = o.hr, h = refH, s = o.best;
+    L.push(['Vagues', `${fr(hr.sh[h], 2)} m · ${sizeWord(hr.sh[h])}`, `${periodWord(hr.sp[h])}${angdiff(hr.sd[h], SPOT.swellIdeal) > 30 ? ' · mal orientées' : ''}`]);
+    L.push(['Vent', `${fr(hr.w[h], 0)} km/h · ${windWord(hr.w[h])}`, `${windDirWord(hr.wd[h], hr.w[h])}${hr.g[h] ? ` · rafales ${fr(hr.g[h], 0)} km/h` : ''}`.replace(/^ · /, '')]);
+    L.push(['Marée', tideWord(s).replace(', ', ' · '), 'Petit bonus seulement, elle ne change pas le verdict.']);
+  } else {
+    const dl = o.dl;
+    L.push(['Vagues', `jusqu'à ${fr(dl.sh, 2)} m · ${sizeWord(dl.sh)}`, 'Maximum de la journée, estimation grossière.']);
+    L.push(['Vent', `jusqu'à ${fr(dl.wm, 0)} km/h · ${windWord(dl.wm)}`, dl.gm ? `Rafales jusqu'à ${fr(dl.gm, 0)} km/h.` : '']);
+    L.push(['Marée', '—', 'Disponible avec les données horaires.']);
+  }
+  if (sessOfDay) L.push(['Météo', `${sessOfDay.cond} · ${sessOfDay.temp}°`, 'Relevé Strava pendant ta session.']);
+  else if (o.best && o.hr.cl) { const h = refH; L.push(['Météo', `${skyWord(o.hr.cl[h])} · ${fr(o.hr.tmp[h], 0)}° · ${rainWord(o.hr.pr[h] + (o.hr.pr[h + 1] || 0))}`, 'Prévision Open-Meteo, à l\'heure du créneau.']); }
+  else if (o.dl && o.dl.pr !== undefined) L.push(['Météo', `${rainWord(o.dl.pr)}${o.dl.pr >= 0.2 ? ` (${fr(o.dl.pr, 1)} mm)` : ''} · max ${fr(o.dl.tx, 0)}°`, 'Synthèse du jour, ciel heure par heure plus tard.']);
+  else L.push(['Météo', 'à brancher', 'Ciel, pluie et température de l\'air pour ce jour.']);
+
+  let water, waterNote;
+  if (isNov) { water = Math.round(o.best && o.hr.sst ? o.hr.sst[refH] : D.sstWeek); waterNote = 'Température de l\'eau prévue par Open-Meteo.'; }
+  else { water = state.water; waterNote = 'Température de l\'eau : valeur d\'exemple.'; }
+  const g = gear(water, wind > 25);
+  const accTxt = g.acc.length ? ` + ${g.acc.join(', ')}` : '';
+  const opts = [11, 13, 15, 17, 19, 21].map(w => `<option value="${w}"${w === state.water ? ' selected' : ''}>${w}°</option>`).join('');
+  const waterCtl = isNov ? `${water}°` : `<select id="water" aria-label="Température de l'eau (exemple)">${opts}</select>`;
+  L.push(['Eau et tenue', `${waterCtl} · ${g.rec}${accTxt}`, `Ta 4/3 : ${g.cmp}${wind > 25 ? ' · +1 cran pour le vent fort' : ''}. ${waterNote}`]);
+  el('lines').innerHTML = L.map(([l, v, s]) => {
+    const parts = String(v).split(' · '); const big = parts[0], word = parts.slice(1).join(' · ');
+    const m = /^(jusqu'à )?(\d[\d,]*)\s?(m|km\/h|°)?$/.exec(big);
+    const bigHtml = m ? `${m[1] ? '<span class="pre">jusqu\'à</span>' : ''}${m[2]}${m[3] === '°' ? '°' : m[3] ? `<span class="u">${m[3]}</span>` : ''}` : fx(big);
+    return `<div class="tile${l === 'Eau et tenue' ? ' wide' : ''}"><div class="l">${ICON[l] || ''}${l}</div><div class="big${m ? ' n' : ''}">${bigHtml}</div>${word ? `<div class="word">${fx(word)}</div>` : ''}${s ? `<small>${fx(s)}</small>` : ''}</div>`;
+  }).join('');
+  const ws = el('water'); if (ws) ws.onchange = e => { state.water = +e.target.value; render(); };
+
+  /* semaine */
+  const start = weekStart();
+  const days = []; for (let k = 0; k < 7; k++) { const di = addDays(start, k); if (D.daily[di] || D.hourly[di]) days.push(buildDay(di)); }
+  const wk = el('week'); const prevScroll = wk.scrollLeft; wk.innerHTML = '';
+  days.forEach((dobj, k) => {
+    const iso = dobj.iso;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'day' + (dobj.weekend ? ' we' : '') + (k >= 4 ? ' trend' : '');
+    b.setAttribute('aria-pressed', String(iso === state.sel));
+    b.dataset.v = dobj.c;
+    const hv = dobj.best && dobj.hr ? dobj.hr.sh[dobj.best.h] : dobj.dl ? dobj.dl.sh : null;
+    const hgt = hv == null ? '' : `${fr(hv, 1)}${NB}m`;
+    b.setAttribute('aria-label', `${longDate(dobj.date)} : ${SHORT[dobj.c]}${hgt ? `, vagues ${hgt}` : ''}${k >= 4 ? ' (tendance)' : ''}`);
+    b.innerHTML = `<span class="wd">${DAYS3[dobj.date.getUTCDay()]}</span><span class="dn num">${dobj.date.getUTCDate()}</span><span class="ico">${ICON['Vagues']}</span><span class="hgt num">${hgt || '–'}</span><span class="vl">${CELL[dobj.c]}</span>`;
+    b.onclick = () => { state.sel = iso; render(); };
+    wk.appendChild(b);
+  });
+  wk.scrollLeft = prevScroll;
+  const selB = wk.querySelector('[aria-pressed="true"]');
+  if (selB && (selB.offsetLeft < wk.scrollLeft || selB.offsetLeft + selB.offsetWidth > wk.scrollLeft + wk.clientWidth)) wk.scrollTo({ left: selB.offsetLeft - (wk.clientWidth - selB.offsetWidth) / 2, behavior: REDUCED ? 'auto' : 'smooth' });
+  if (focusWeek) { const p = wk.querySelector('[aria-pressed="true"]'); if (p) p.focus({ preventScroll: true }); }
+  if (focusWater) { const w = el('water'); if (w) w.focus({ preventScroll: true }); }
+
+  drawHours(o, sessOfDay, todayLeft);
+}
+
+function waveY(x, base, amp, len, ph) { return base + amp * Math.sin(2 * Math.PI * x / len + ph) + amp * 0.35 * Math.sin(4 * Math.PI * x / len + ph * 1.7); }
+function wavePath(base, amp, len, ph) { let d = `M0 ${base}`; for (let x = 0; x <= 400; x += 8) d += ` L${x} ${waveY(x, base, amp, len, ph).toFixed(1)}`; return d + ' L400 280 L0 280Z'; }
+/* La houle dessinée suit la prévision : amplitude selon la hauteur, écartement selon la période */
+function drawScene(c, size, period) {
+  const H = 150, bases = [H, H + 32, H + 66, H + 108];
+  let s = '';
+  if (c === 'costaud') {
+    s += '<ellipse cx="90" cy="78" rx="70" ry="16" fill="#0B1218" opacity=".3"/><ellipse cx="170" cy="92" rx="90" ry="14" fill="#0B1218" opacity=".28"/><ellipse cx="320" cy="66" rx="80" ry="18" fill="#0B1218" opacity=".34"/>';
+  } else {
+    const low = c === 'correct';
+    s += `<circle cx="346" cy="${low ? H + 2 : H - 12}" r="${low ? 26 : 20}" style="fill:var(--sun)" opacity="${c === 'plat' ? .55 : .92}"/>`;
+  }
+  const P = [];
+  bases.forEach((b, i) => {
+    const amp = Math.min(34, (2 + size * 9) * (1 + i * 0.45)), len = (70 + period * 10) * (1 + i * 0.35), ph = i * 1.3 + 0.5;
+    P.push({ b, amp, len, ph });
+    const bob = `class="bob" style="--a:${(1.5 + i * 1.2).toFixed(1)};--d:${(5 + i * 1.7).toFixed(1)}s;animation-delay:${(-i * 1.3).toFixed(1)}s"`;
+    let g = `<path d="${wavePath(b, amp, len, ph)}" style="fill:var(--sea${Math.min(i, 2) + 1})" opacity="${i === 0 ? .9 : 1}"/>`;
+    if (i === 2 && (c === 'go' || c === 'correct')) {
+      const x = 236, y = waveY(x, b, amp, len, ph) - 3;
+      g += `<g transform="translate(${x} ${y.toFixed(1)}) rotate(-9)" fill="#0A2A30" opacity=".92"><ellipse cx="0" cy="0" rx="18" ry="2.6"/><path d="M-5 -2 L-3 -13 L3 -13 L6 -2z"/><circle cx="0" cy="-17.5" r="3.2"/><path d="M-3 -12 L-11 -8 M3 -12 L10 -15" stroke="#0A2A30" stroke-width="2" stroke-linecap="round" fill="none"/></g>`;
+    }
+    s += `<g ${bob}>${g}</g>`;
+  });
+  el('scene').innerHTML = s;
+}
+
+/* Courbe horaire : bande qui défile horizontalement (la dernière heure dépasse du bord = geste suggéré, comme l'appli météo iOS).
+   Hauteur de houle par heure, point coloré par verdict, vent dessous ; toucher une heure affiche son détail. Aucun texte d'explication. */
+const hs = { iso: null, h: null };
+const VW = 360, CH = 118, CTOP = 14, CBOT = 8;
+function drawHours(o, sessOfDay, todayLeft, keepScroll) {
+  const box = el('hoursBody');
+  if (!o.slots) {
+    box.innerHTML = '<p class="hnote">Pas de données horaires pour ce jour : le verdict vient du maximum de la journée. Les heures arrivent à J+3.</p>';
+    return;
+  }
+  const n = o.slots.length, hr = o.hr;
+  const prev = box.querySelector('.hscroll'), prevLeft = prev ? prev.scrollLeft : 0;
+  const dayChanged = hs.iso !== state.sel;
+  if (dayChanged || !o.slots.some(s => s.h === hs.h)) { hs.iso = state.sel; hs.h = (o.best || o.slots[0]).h; }
+  const COL = VW / n, W = VW, ch = CH - CTOP - CBOT;
+  const vals = o.slots.map(s => hr.sh[s.h]);
+  const ymax = Math.max(1.8, Math.max(...vals) * 1.08);
+  const X = i => (i + 0.5) * COL, Y = v => CTOP + ch * (1 - v / ymax);
+  const pts = vals.map((v, i) => [X(i), Y(v)]);
+  let d = `M${pts[0][0]} ${pts[0][1]}`;
+  if (n === 1) d = `M${pts[0][0] - 20} ${pts[0][1]} L${pts[0][0] + 20} ${pts[0][1]}`;
+  for (let i = 0; i < n - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    d += ` C${(p1[0] + (p2[0] - p0[0]) / 6).toFixed(1)} ${(p1[1] + (p2[1] - p0[1]) / 6).toFixed(1)} ${(p2[0] - (p3[0] - p1[0]) / 6).toFixed(1)} ${(p2[1] - (p3[1] - p1[1]) / 6).toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+  }
+  const selI = o.slots.findIndex(s => s.h === hs.h);
+  const area = n > 1 ? `${d} L${pts[n - 1][0]} ${CH - CBOT} L${pts[0][0]} ${CH - CBOT}Z` : '';
+  const svg = `<svg class="curve" viewBox="0 0 ${W} ${CH}" role="img" aria-label="Hauteur des vagues heure par heure, de ${fr(Math.min(...vals), 2)} à ${fr(Math.max(...vals), 2)} mètres">
+    <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".35"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+    <rect class="band" x="0" y="${Y(1.0).toFixed(1)}" width="${W}" height="${(Y(0.5) - Y(1.0)).toFixed(1)}" rx="4"/>
+    ${ymax > 1.5 ? `<line class="big" x1="0" x2="${W}" y1="${Y(1.5).toFixed(1)}" y2="${Y(1.5).toFixed(1)}"/>` : ''}
+    ${area ? `<path d="${area}" fill="url(#ag)"/>` : ''}
+    <path class="line" d="${d}"/>
+    <line class="guide" x1="${X(selI).toFixed(1)}" x2="${X(selI).toFixed(1)}" y1="${CTOP - 6}" y2="${CH - CBOT}"/>
+    ${o.slots.map((s, i) => `<circle class="pt" cx="${X(i).toFixed(1)}" cy="${Y(vals[i]).toFixed(1)}" r="${i === selI ? 6.5 : 4.5}" style="fill:var(--${s.c})"/>${s === o.best ? `<circle class="ring" cx="${X(i).toFixed(1)}" cy="${Y(vals[i]).toFixed(1)}" r="10"/>` : ''}${sessOfDay && sessOfDay.hour === s.h ? `<circle class="mine" cx="${X(i).toFixed(1)}" cy="${Y(vals[i]).toFixed(1)}" r="13"/>` : ''}`).join('')}
+  </svg>`;
+  const arrow = deg => `<svg viewBox="0 0 12 12" style="transform:rotate(${Math.round(deg)}deg)" aria-hidden="true"><path d="M6 1v9M2.5 6.5L6 10l3.5-3.5"/></svg>`;
+  const cols = o.slots.map(s => `<button type="button" data-h="${s.h}" aria-pressed="${s.h === hs.h}" aria-label="${s.h} heures : ${SHORT[s.c]}, vagues ${fr(hr.sh[s.h], 2)} mètre, vent ${fr(hr.w[s.h], 0)} kilomètres par heure${s === o.best ? ', meilleur créneau' : ''}"><span class="num">${s.h}h</span><span class="w num">${arrow(hr.wd[s.h])}${fr(hr.w[s.h], 0)}</span></button>`).join('');
+  const s = o.slots[selI], h = s.h, tide = tideWord(s);
+  const readout = `<div class="r1"><span class="num">${h}h</span><span class="pill" data-v="${s.c}"><i class="dot"></i>${SHORT[s.c]}</span>${s === o.best ? '<span class="tag">meilleur</span>' : ''}${sessOfDay && sessOfDay.hour === h ? '<span class="tag">ta session</span>' : ''}</div><div class="r2 num">${fx(`${fr(hr.sh[h], 2)} m · ${fr(hr.sp[h])} s · vent ${fr(hr.w[h], 0)} km/h (rafales ${fr(hr.g[h], 0)}) · ${tide.startsWith('mi') ? '' : 'marée '}${tide.replace('mi-', 'mi\u2011')}`)}</div>`;
+  box.innerHTML = `<div class="readout" aria-live="polite">${readout}</div><div class="hscroll" role="group" aria-label="Heures de la journée"><div class="hin">${svg}<div class="hcols">${cols}</div></div></div>`;
+  if (!box._bound) { box._bound = true; bindScrub(box); }
+  hs.o = o; hs.sess = sessOfDay; hs.left = todayLeft;
+  box.querySelectorAll('.hcols button').forEach(b => b.onclick = () => { hs.h = +b.dataset.h; drawHours(o, sessOfDay, todayLeft, true); const nb = box.querySelector(`.hcols button[data-h="${hs.h}"]`); if (nb) nb.focus({ preventScroll: true }); });
+  box.querySelectorAll('.hcols button').forEach(b => b.onkeydown = e => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const k = selI + (e.key === 'ArrowRight' ? 1 : -1); if (k < 0 || k >= n) return;
+    e.preventDefault(); hs.h = o.slots[k].h; drawHours(o, sessOfDay, todayLeft, true);
+    const nb = box.querySelector(`.hcols button[data-h="${hs.h}"]`); if (nb) { nb.focus({ preventScroll: true }); nb.scrollIntoView({ inline: 'nearest', block: 'nearest' }); }
+  });
+}
+
+/* Glisser le doigt sur la courbe change d'heure ; le scroll vertical reste libre (touch-action: pan-y) */
+function bindScrub(box) {
+  let drag = false;
+  const set = e => {
+    const w = box.querySelector('.hin'); if (!w || !hs.o) return;
+    const r = w.getBoundingClientRect(), n = hs.o.slots.length;
+    const i = Math.max(0, Math.min(n - 1, Math.floor((e.clientX - r.left) / r.width * n)));
+    const h = hs.o.slots[i].h;
+    if (h !== hs.h) { hs.h = h; drawHours(hs.o, hs.sess, hs.left, true); }
+  };
+  box.addEventListener('pointerdown', e => { if (!e.target.closest('.hin')) return; drag = true; try { box.setPointerCapture(e.pointerId); } catch (_) {} set(e); });
+  box.addEventListener('pointermove', e => { if (drag) set(e); });
+  const end = () => { drag = false; };
+  box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
+}
+
+function pickDefault() {
+  START = ASOF_DATE;
+  if (buildDay(ASOF_DATE).over) START = addDays(ASOF_DATE, 1);
+  state.sel = START;
+}
+pickDefault();
+render();
+
+}
+liveLoad(D).then(ok => {
+  if (!ok) {
+    document.getElementById('verdict').textContent = 'Pas de données';
+    document.getElementById('reason').textContent = 'Impossible de joindre Open-Meteo pour le moment.';
+    const s = document.getElementById('slot'); s.hidden = false; s.innerHTML = '<button class="chip" id="retry" type="button">Réessayer</button>';
+    const mn = document.querySelector('main'); if (mn) mn.hidden = true;
+    document.getElementById('retry').onclick = () => location.reload();
+    return;
+  }
+  __main();
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - D.fetchedAt > 30 * 60000) location.reload(); });
+});
+
+</script>
+</body>
+</html>

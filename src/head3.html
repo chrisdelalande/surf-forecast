@@ -1,0 +1,241 @@
+<title>Surf Check Pornichet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one mobile column. Hero = sea scene driven by the forecast swell, week strip on top, verdict, slot and one-line reason; then conditions of the slot, detail on demand, replay of past sessions at the bottom. */
+:root {
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bg: #071A2C;
+  --surface: rgb(255 255 255 / .07);
+  --surface2: rgb(255 255 255 / .10);
+  --ink: #EAF3F6;
+  --muted: #9FB6C3;
+  --line: rgb(255 255 255 / .12);
+  --accent: #86D6E6;
+  --go: #5CD6A0; --correct: #F0B55E; --plat: #A9C3CE; --costaud: #F08A8C;
+  --hero-ink: #F3FAF8;
+  --focus: #86D6E6;
+  color-scheme: dark;
+}
+@property --sky-top { syntax: '<color>'; inherits: true; initial-value: #0B3B45; }
+@property --sky-mid { syntax: '<color>'; inherits: true; initial-value: #22645D; }
+@property --sky-bot { syntax: '<color>'; inherits: true; initial-value: #33816F; }
+@property --sea1 { syntax: '<color>'; inherits: true; initial-value: #26796F; }
+@property --sea2 { syntax: '<color>'; inherits: true; initial-value: #1B6A6C; }
+@property --sea3 { syntax: '<color>'; inherits: true; initial-value: #0F4A52; }
+@property --sun { syntax: '<color>'; inherits: true; initial-value: #FFE7A8; }
+* { box-sizing: border-box; }
+body { background: var(--bg); min-height: 100vh; color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
+button, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.wrap { max-width: 560px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.num { font-variant-numeric: tabular-nums; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* Hero : ciel et mer pilotés par le verdict, houle dessinée à l'échelle des prévisions */
+.hero { position: relative; color: var(--hero-ink); overflow: hidden; text-shadow: 0 1px 10px rgb(0 0 0 / .35);
+  --sky-top: #0B3B45; --sky-mid: #22645D; --sky-bot: #33816F; --sea1: #26796F; --sea2: #1B6A6C; --sea3: #0F4A52; --sun: #FFE7A8;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 58%, var(--sky-bot) 100%);
+  transition: --sky-top .6s ease, --sky-mid .6s ease, --sky-bot .6s ease, --sea1 .6s ease, --sea2 .6s ease, --sea3 .6s ease, --sun .6s ease; }
+.hero :focus-visible { outline-color: #fff; }
+.hero[data-v="correct"] { --sky-top: #1B3A52; --sky-mid: #5A4560; --sky-bot: #A6671F; --sea1: #4A7686; --sea2: #305A6A; --sea3: #1C3E4D; --sun: #FFC77A; }
+.hero[data-v="plat"] { --sky-top: #20404E; --sky-mid: #3D6170; --sky-bot: #527988; --sea1: #4F7689; --sea2: #456B7C; --sea3: #365A6B; --sun: #EEF5F7; }
+.hero[data-v="costaud"] { --sky-top: #141E27; --sky-mid: #463841; --sky-bot: #6A4A54; --sea1: #46525F; --sea2: #303C4A; --sea3: #1E2834; }
+.scene { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 280px; display: block; pointer-events: none; }
+.hero .wrap { position: relative; padding-block: 16px 128px; overflow: visible; display: grid; gap: 14px; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.spot { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; opacity: .9; }
+.badge { font-size: 12px; padding: 3px 10px; border: 1px solid rgb(243 250 248 / .4); border-radius: 99px; background: rgb(0 0 0 / .12); }
+.chip { display: inline-flex; align-items: center; min-height: 40px; background: rgb(243 250 248 / .1); border: 1px solid rgb(243 250 248 / .3); color: var(--hero-ink); border-radius: 99px; padding: 6px 14px; font-size: 14px; cursor: pointer; text-shadow: none; transition: background .15s, transform .1s; }
+.chip:active { transform: scale(.97); }
+.chip[hidden] { display: none; }
+.back { justify-self: start; }
+.date { font-size: 14px; opacity: .92; }
+.date[hidden] { display: none; }
+.verdict { font-family: var(--font-display); font-weight: 800; font-size: clamp(64px, 22vw, 104px); line-height: .92; letter-spacing: -.02em; margin: 0; }
+.vsub { display: inline-block; margin-top: 8px; font-size: 14px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 3px 10px; border-radius: 6px; background: rgb(243 250 248 / .18); }
+.vsub[hidden] { display: none; }
+.slot { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.slot b { font-family: var(--font-display); font-size: 28px; font-weight: 600; }
+.slot span { font-size: 13px; }
+.slot b { white-space: nowrap; }
+.slot[hidden] { display: none; }
+.reason { font-size: 18px; line-height: 1.35; max-width: 15.5em; margin: 0; text-wrap: balance; }
+.waves { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 44px; display: block; }
+
+/* Semaine : slider horizontal, grandes cartes */
+.week { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; margin-inline: -16px; padding: 2px 16px 6px; scroll-padding-inline: 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.week::-webkit-scrollbar { display: none; }
+.day { --c: #6FD3A8; --cd: #1E7A55; flex: 0 0 80px; scroll-snap-align: start; background: rgb(255 255 255 / .12); border: 1px solid rgb(255 255 255 / .24); color: var(--hero-ink); border-radius: 20px; padding: 11px 6px 11px; text-align: center; cursor: pointer; display: grid; gap: 4px; justify-items: center; align-content: start; min-height: 134px; text-shadow: none; transition: background .15s, transform .1s; }
+.day[data-v="correct"] { --c: #F0B55E; --cd: #9A5E10; } .day[data-v="plat"] { --c: #C3D6DE; --cd: #4D6A78; } .day[data-v="costaud"] { --c: #F59B9D; --cd: #B03E42; }
+.day:hover { background: rgb(255 255 255 / .20); }
+.day:active { transform: scale(.96); }
+.day.we { background: rgb(255 255 255 / .18); }
+.day[aria-pressed="true"] { background: var(--hero-ink); color: #0D2A2E; border-color: var(--hero-ink); }
+.day .wd { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; }
+.day .dn { font-weight: 600; font-size: 18px; line-height: 1; }
+.day .ico { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: rgb(255 255 255 / .16); margin: 3px 0 1px; }
+.day .ico svg { width: 21px; height: 21px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.day[aria-pressed="true"] .ico { background: color-mix(in srgb, var(--cd) 14%, transparent); }
+.day[aria-pressed="true"] .ico svg { stroke: var(--cd); }
+.day .hgt { font-family: var(--font-display); font-weight: 600; font-size: 17px; line-height: 1; color: var(--c); }
+.day[aria-pressed="true"] .hgt { color: var(--cd); }
+.day .vl { font-size: 12px; font-weight: 600; line-height: 1.1; }
+.day.trend { border-style: dashed; }
+
+/* Sections */
+main .wrap { display: grid; gap: 20px; padding-block: 16px 36px; }
+h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0 0 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.session { padding: 14px 16px; display: grid; gap: 6px; }
+.session .k { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.cmp { display: flex; gap: 8px 16px; flex-wrap: wrap; align-items: center; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; }
+.dot { width: 11px; height: 11px; border-radius: 50%; background: var(--c, var(--muted)); flex: none; }
+[data-v="go"] { --c: var(--go); } [data-v="correct"] { --c: var(--correct); } [data-v="plat"] { --c: var(--plat); } [data-v="costaud"] { --c: var(--costaud); }
+.hero .dot { --c: #6FD3A8; }
+.hero [data-v="correct"] .dot { --c: #F0B55E; } .hero [data-v="plat"] .dot { --c: #B5CBD4; } .hero [data-v="costaud"] .dot { --c: #F08A8C; } .hero [data-v="go"] .dot { --c: #6FD3A8; }
+.lines { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px; display: grid; gap: 3px; align-content: start; min-width: 0; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.tile.wide { grid-column: 1 / -1; }
+.tile .l { display: flex; align-items: center; gap: 7px; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.tile .l svg { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tile .big { font-family: var(--font-display); font-weight: 600; font-size: 22px; line-height: 1.1; margin-top: 8px; }
+.tile .big.n { font-size: 34px; letter-spacing: -.01em; }
+.tile .big .u { font-size: 15px; font-weight: 500; color: var(--muted); margin-left: 3px; letter-spacing: 0; }
+.tile .pre { display: block; font-family: var(--font-body); font-size: 12px; font-weight: 400; color: var(--muted); margin-bottom: 2px; }
+.tile .word { font-weight: 600; font-size: 14px; color: var(--accent); }
+.tile small { color: var(--muted); font-size: 12.5px; line-height: 1.35; margin-top: 2px; }
+.tile select { background: var(--surface2); border: 1px solid var(--line); border-radius: 10px; padding: 2px 6px; font: inherit; color: var(--ink); }
+option { color: #0D2A2E; }
+.sechead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.sechead h2 { margin: 0; }
+.sechead .when { font-family: var(--font-display); font-weight: 600; font-size: 16px; color: var(--accent); }
+
+/* Detail */
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+summary { padding: 14px 16px; min-height: 48px; cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+.inner { padding: 0 16px 16px; display: grid; gap: 14px; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+.tablewrap:focus-visible { outline-offset: 0; }
+table { border-collapse: collapse; width: 100%; min-width: 440px; font-size: 13.5px; }
+th, td { padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--surface2); }
+tr:last-child td { border-bottom: 0; }
+tr.best td { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.tag { font-size: 11px; font-weight: 600; margin-left: 6px; padding: 1px 6px; border-radius: 5px; background: var(--accent); color: #06202B; }
+.hcard { padding: 14px 14px 12px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; min-width: 0; }
+.hcard h2 { margin: 0 2px; }
+.readout { display: grid; gap: 2px; padding: 2px; min-height: 52px; }
+.readout .r1 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-family: var(--font-display); font-weight: 600; font-size: 20px; }
+.readout .r1 .pill { font-family: var(--font-body); font-size: 14px; }
+.readout .r2 { font-size: 13.5px; color: var(--muted); }
+.hscroll { min-width: 0; }
+.hin { position: relative; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: ew-resize; }
+.curve { display: block; width: 100%; height: auto; overflow: visible; }
+.curve .band { fill: var(--go); opacity: .13; }
+.curve .big { stroke: var(--costaud); stroke-width: 1; stroke-dasharray: 3 4; opacity: .7; }
+.curve .line { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.curve .guide { stroke: var(--ink); stroke-width: 1; opacity: .35; }
+.curve .pt { stroke: var(--bg); stroke-width: 2; }
+.curve .ring { fill: none; stroke: var(--ink); stroke-width: 2; }
+.curve .mine { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 3 3; }
+.hcols { display: flex; }
+.hcols button { flex: 1 1 0; min-width: 0; min-height: 52px; display: grid; justify-items: center; align-content: center; gap: 3px; background: none; border: 0; border-radius: 10px; color: var(--muted); font-size: 12px; cursor: pointer; padding: 4px 0; }
+.hcols button[aria-pressed="true"] { background: rgb(255 255 255 / .12); color: var(--ink); font-weight: 600; }
+.hcols .w { display: inline-flex; align-items: center; gap: 2px; font-size: 11px; }
+.hcols .w svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.hnote { margin: 0; font-size: 12.5px; color: var(--muted); }
+.gloss { display: grid; gap: 6px; font-size: 14px; }
+.gloss b { font-weight: 600; }
+.replaybox { padding: 14px 16px; display: grid; gap: 10px; }
+.replaybox p { margin: 0; font-size: 13.5px; color: var(--muted); }
+.rchips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip.light { background: var(--surface2); border-color: var(--line); color: var(--ink); }
+.chip.light[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #06202B; font-weight: 600; }
+.limits { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+.limits p { margin: 0; max-width: 62ch; }
+.safety b { font-weight: 600; }
+.safety { font-size: 13.5px; padding: 12px 14px; border-radius: 10px; background: var(--surface2); border: 1px solid var(--line); }
+.hero .swap { will-change: opacity, transform; }
+@media (prefers-reduced-motion: reduce) {
+  .hero, .day, .chip { transition: none; }
+  .scene * { animation: none !important; }
+}
+.scene .bob { animation: bob var(--d, 6s) ease-in-out infinite alternate; }
+@keyframes bob { from { transform: translateY(calc(var(--a, 2) * -1px)); } to { transform: translateY(calc(var(--a, 2) * 1px)); } }
+</style>
+
+<header class="hero" id="hero" data-v="go">
+  <svg class="scene" id="scene" viewBox="0 0 400 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <div class="top">
+      <span class="spot">Pornichet</span>
+      <span class="badge" id="badge">Prototype</span>
+    </div>
+    <button class="chip back" id="backBtn" type="button" hidden>← Cette semaine</button>
+    <div class="week" id="week" role="group" aria-label="Prévision de la semaine"></div>
+    <div class="swap" id="swap1">
+      <div class="date" id="date"></div>
+      <h1 class="verdict" id="h1" tabindex="-1"><span class="sr" id="srdate">Verdict : </span><span id="verdict"></span></h1>
+      <span class="vsub" id="vsub" hidden></span>
+    </div>
+    <div class="slot swap" id="slot"></div>
+    <p class="reason swap" id="reason"></p>
+    <p class="sr" id="live" role="status" aria-live="polite"></p>
+  </div>
+  <svg class="waves" viewBox="0 0 1200 44" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 22 C180 6 330 6 520 22 S840 40 1010 20 S1150 10 1200 18 V44 H0Z" fill="var(--bg)"/>
+  </svg>
+</header>
+
+<main>
+  <div class="wrap">
+    <section id="sessionBox" hidden></section>
+
+    <section aria-labelledby="h-now">
+      <div class="sechead"><h2 id="h-now">Conditions du créneau</h2><span class="when num" id="when"></span></div>
+      <div class="lines" id="lines"></div>
+    </section>
+
+    <section class="card hcard" aria-labelledby="h-hours">
+      <h2 id="h-hours">Heure par heure</h2>
+      <div id="hoursBody"></div>
+    </section>
+
+    <section class="card replaybox" aria-labelledby="h-replay" hidden>
+      <h2 id="h-replay" style="margin:0">Rejouer une session passée</h2>
+      <p>Choisis une session : le verdict est recalculé avec les données de l'époque, puis comparé à ton ressenti.</p>
+      <div class="rchips" id="rchips"></div>
+    </section>
+
+    <details>
+      <summary>Comprendre les termes</summary>
+      <div class="inner gloss">
+        <div><b>Hauteur des vagues</b> : la taille de la houle, avant qu'elle ne casse sur la plage. Jusqu'à 1 m, c'est confortable pour un débutant.</div>
+        <div><b>Espacement des vagues</b> : le temps entre deux vagues. Au-dessus de 8 secondes, elles sont bien formées. Exemple : à 10 s, tu as le temps de te replacer entre deux séries. À 6 s, elles s'enchaînent et la mer est désordonnée.</div>
+        <div><b>Orientation de la houle</b> : la direction d'où elle arrive. La plage de Pornichet fait face à l'ouest-sud-ouest. Exemple : une houle de nord arrive de côté, la plage la reçoit mal et il y a peu de vagues.</div>
+        <div><b>Vent de terre ou de mer</b> : un vent qui vient de la terre lisse la surface. Un vent qui vient de la mer la hache. Exemple : 10 km/h de terre, c'est idéal. 30 km/h de mer, la surface est hachée.</div>
+        <div><b>Rafales</b> : les pointes de vent, plus fortes que le vent moyen. Exemple : un vent de 20 km/h avec des rafales à 40 km/h se ressent comme un vent fort.</div>
+        <div><b>Marée</b> : le niveau de l'eau. Exemple : à marée haute descendante, l'eau se retire et les vagues peuvent changer de forme. Pornichet marche mieux en marée basse à mi-montante, mais ce critère pèse peu dans le verdict.</div>
+        <div><b>Tenue</b> : la combinaison conseillée selon l'eau. Exemple : à 13°, une 4/3 avec chaussons. Sous 11°, il faut une 5/4 avec gants et cagoule.</div>
+        <div><b>Jours en pointillés</b> : tendance. Plus un jour est loin, moins la prévision est sûre. Les week-ends ont un fond plus clair. Fais glisser la bande des jours pour voir la fin de la semaine.</div>
+      </div>
+    </details>
+
+    <div class="safety"><b>Sécurité.</b> Le verdict ne couvre que l'état de la mer. Il ne remplace ni les drapeaux ni les sauveteurs, et il ne prévoit pas les courants.</div>
+
+    <details>
+      <summary>Sources et limites</summary>
+      <div class="inner limits">
+      <p>Houle, vent et marée : Open-Meteo (modèle marin, point de grille à environ 6 km au large du spot), licence CC BY 4.0. Ciel, pluie, température de l'air et de l'eau : Open-Meteo. Données de prévision : © Open-Meteo.com.</p>
+      <p>Détail heure par heure : jusqu'à J+3. Au-delà, le verdict s'appuie sur le maximum de la journée (tendance, en pointillés) et le créneau apparaît quand le jour se rapproche.</p>
+      <p>Heures de Paris. Seuils de la version 1 prudents et génériques, à recaler avec l'expérience. La règle tempête (vent moyen au-delà de 35 km/h ou rafales au-delà de 60 km/h) est une proposition de sécurité, pas encore validée.</p>
+      </div>
+    </details>
+  </div>
+</main>
+
